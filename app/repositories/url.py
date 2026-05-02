@@ -20,3 +20,7 @@ class UrlRepository:
     async def get_all(self, limit: int = 10, offset: int = 0):
         result = await self.session.execute(select(Url).limit(limit).offset(offset))
         return result.scalars().all()
+    
+    async def get_by_url(self, url:str):
+        result = await self.session.execute(select(Url).where(Url.url == url))
+        return result.scalar_one_or_none()
