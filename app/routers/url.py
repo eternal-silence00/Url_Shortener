@@ -7,7 +7,7 @@ from app.services.url import create_short_code
 
 router = APIRouter()
 
-@router.post("/url", status_code=201)
+@router.post("/url",response_model=UrlResponse, status_code=201)
 async def create_short_url(
     data: UrlCreate,
     session: AsyncSession = Depends(get_db)
