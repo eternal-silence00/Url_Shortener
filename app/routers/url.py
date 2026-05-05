@@ -14,7 +14,7 @@ async def create_short_url(
     data: UrlCreate,
     session: AsyncSession = Depends(get_db)
 ):
-    short_url = await create_short_code(data.url, session)
+    short_url = await create_short_code(str(data.url), session)
     return {"short_url": short_url}
 
 @router.get("/url")
