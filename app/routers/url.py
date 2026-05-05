@@ -5,6 +5,7 @@ from app.database import get_db
 from app.schemas.url import UrlCreate, UrlResponse
 from app.services.url import create_short_code
 from fastapi.responses import RedirectResponse
+from app.redis_client import redis_client
 
 router = APIRouter()
 
@@ -32,8 +33,13 @@ async def redirect(
     short_code: str,
     session: AsyncSession = Depends(get_db)
 ):
+    cache_key = f"short_code:{short_code}"
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return RedirectResponse(url=cached)
     repo = UrlRepository(session)
     result = await repo.get_by_short_code(short_code)
     if not result:
         raise HTTPException(status_code=404, detail="Url not found")
+    await redis_client.set(cache_key, result.url, ex=300 )
     return RedirectResponse(url=result.url)
